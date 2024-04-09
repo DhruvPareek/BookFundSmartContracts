@@ -19,11 +19,11 @@ import {LinkTokenInterface} from "node_modules/@chainlink/contracts/src/v0.8/sha
 contract EmailOracle is ChainlinkClient, ConfirmedOwner {
     using Chainlink for Chainlink.Request;
 
-    uint256 public volume;
+    uint256 public price;
     bytes32 private jobId;
     uint256 private fee;
 
-    event RequestVolume(bytes32 indexed requestId, uint256 volume);
+    event RequestPrice(bytes32 indexed requestId, uint256 price);
 
     /**
      * @notice Initialize the link token and target oracle
@@ -41,7 +41,7 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
         fee = (1 * LINK_DIVISIBILITY) / 10; // 0,1 * 10**18 (Varies by network and job)
     }
 
-    function requestVolumeData(string memory emailAddress) external returns (bytes32 requestId) {
+    function requestPriceData(string memory emailAddress) external returns (bytes32 requestId) {
         Chainlink.Request memory req = _buildChainlinkRequest(
             jobId,
             address(this),
@@ -69,10 +69,10 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
      */
     function fulfill(
         bytes32 _requestId,
-        uint256 _volume
+        uint256 _price
     ) external recordChainlinkFulfillment(_requestId) {
-        emit RequestVolume(_requestId, _volume);
-        volume = _volume;
+        emit RequestPrice(_requestId, _price);
+        price = _price;
     }
 
     /**
