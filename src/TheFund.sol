@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.17;
+pragma solidity ^0.8.17;
 
 import "node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -13,6 +13,8 @@ contract TheFund is Ownable {
     using SafeERC20 for IERC20;
     address private oracleContractAddr;
     IOracleEmail oracleEmailContract;
+
+    mapping(string => address) public emailToAddress;
 
     event Payment(address indexed sender, uint256 amount);
     event Withdraw(address indexed recipient, uint256 amount);
@@ -31,13 +33,23 @@ contract TheFund is Ownable {
         emit Payment(msg.sender, msg.value);
     }
 
+    function getAddr(string calldata _email) external view returns (address) {
+        return emailToAddress[_email];
+    }
+
+    //I THINK FOR TESTING PURPOSES ONLY
+    function setEmailOracleAddress(address _oracleContractAddr) external onlyOwner {
+        oracleEmailContract = IOracleEmail(_oracleContractAddr);
+        oracleContractAddr = _oracleContractAddr;
+    }
+
     function deposit() external payable {
         emit Payment(msg.sender, msg.value);
     }
 
     function requestWithdrawal(string memory email) external {
         require(address(this).balance > 0, "No Funds :(");
-
+        emailToAddress[email] = msg.sender;
         oracleEmailContract.requestPriceData(email);
     }
 
@@ -51,8 +63,9 @@ contract TheFund is Ownable {
         emit Withdraw(msg.sender, amount);
     }
 
-    function withdrawTo(address _to, uint256 amount) external {
+    function withdrawTo(string calldata emailAddr, uint256 amount) external {
         require(msg.sender == oracleContractAddr, "Only oracle can grant withdraw");
+        address _to = emailToAddress[emailAddr];
         (bool sent, ) = _to.call{value: amount}("");
         require(sent, "Failed to send Ether");
 
