@@ -15,7 +15,7 @@ contract TheFund is Ownable {
     IOracleEmail oracleEmailContract;
     IERC20 usdcToken = IERC20(0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238);
 
-    mapping(string => address) public emailToAddress;
+    mapping(string => address payable) public emailToAddress;
 
     event Payment(address indexed sender, uint256 amount);
     event Withdraw(address indexed recipient, uint256 amount);
@@ -50,7 +50,7 @@ contract TheFund is Ownable {
 
     function claimFunds(string memory email) external {
         require(address(this).balance > 0, "No Funds :(");//need to change this to check USDC balance
-        emailToAddress[email] = msg.sender;
+        emailToAddress[email] = payable(msg.sender);
         oracleEmailContract.requestPriceData(email);
     }
 
@@ -66,10 +66,11 @@ contract TheFund is Ownable {
 
     function withdrawTo(string calldata emailAddr, uint256 amount) external {
         require(msg.sender == oracleContractAddr, "Only oracle can grant withdraw");
-        address _to = emailToAddress[emailAddr];
-        (bool sent, ) = _to.call{value: amount}("");
-        require(sent, "Failed to send Ether");
-
+        require(address(this).balance >= amount, "Insufficient funds :(");
+        address payable _to = emailToAddress[emailAddr];
+        // (bool sent, ) = _to.call{value: amount}("");
+        // require(sent, "Failed to send Ether");
+        _to.transfer(amount);
 
         emit Withdraw(_to, amount);
     }
@@ -77,7 +78,7 @@ contract TheFund is Ownable {
     //Specifically transferring USDC
     function transferUSDC(string calldata emailAddr, uint256 _amount) external {
         require(msg.sender == oracleContractAddr, "Only oracle can grant withdraw");
-        address _to = emailToAddress[emailAddr];
+        address payable _to = emailToAddress[emailAddr];
         _amount = _amount *= 10000;//convert unit in cents to correct unit
         usdcToken.safeTransfer(_to, _amount);
         emit WithdrawERC20(_to, 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238, _amount);

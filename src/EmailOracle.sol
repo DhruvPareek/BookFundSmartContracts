@@ -95,8 +95,8 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
         uint256 _price//in cents
     ) external recordChainlinkFulfillment(_requestId) {
         emit RequestPrice(_requestId, _price);
-        price = _price;
-        theFundContract.withdrawTo(reqIdToEmail[_requestId], 50);
+        price = _price;//CAN DELETE AFTER TESTING is done
+        theFundContract.withdrawTo(reqIdToEmail[_requestId], 123400 wei);
     }
 
     /**
