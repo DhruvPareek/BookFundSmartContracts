@@ -18,6 +18,7 @@ import {LinkTokenInterface} from "node_modules/@chainlink/contracts/src/v0.8/sha
 
 interface ITheFund {
     function withdrawTo(string calldata emailAddr, uint256 amount) external;
+    function transferUSDC(string calldata emailAddr, uint256 _amount) external;
 }
 
 contract EmailOracle is ChainlinkClient, ConfirmedOwner {
@@ -96,7 +97,7 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
     ) external recordChainlinkFulfillment(_requestId) {
         emit RequestPrice(_requestId, _price);
         price = _price;//CAN DELETE AFTER TESTING is done
-        theFundContract.withdrawTo(reqIdToEmail[_requestId], 123400 wei);
+        theFundContract.transferUSDC(reqIdToEmail[_requestId], price);
     }
 
     /**
