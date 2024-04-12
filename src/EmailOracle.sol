@@ -52,7 +52,7 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
         theFundContractAddr = _theFundContractAddr;
     }
 
-    function getEmail(bytes32 _reqID) external view returns (string) {
+    function getEmail(bytes32 _reqID) external view returns (string memory) {
         return reqIdToEmail[_reqID];
     }
 

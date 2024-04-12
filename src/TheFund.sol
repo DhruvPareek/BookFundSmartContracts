@@ -13,6 +13,7 @@ contract TheFund is Ownable {
     using SafeERC20 for IERC20;
     address private oracleContractAddr;
     IOracleEmail oracleEmailContract;
+    IERC20 usdcToken = IERC20(0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238);
 
     mapping(string => address) public emailToAddress;
 
@@ -73,12 +74,14 @@ contract TheFund is Ownable {
         emit Withdraw(_to, amount);
     }
 
-//     function transferERC20(
-//         address _token,
-//         address _to,
-//         uint256 _amount
-//     ) external onlyOwner {
-//         IERC20(_token).safeTransfer(_to, _amount);
-//         emit WithdrawERC20(_to, _token, _amount);
-//     }
+    //Specifically transferring USDC
+    function transferUSDC(
+        string calldata emailAddr,
+        uint256 _amount
+    ) external {
+        require(msg.sender == oracleContractAddr, "Only oracle can grant withdraw");
+        address _to = emailToAddress[emailAddr];
+        usdcToken.safeTransfer(_to, 0.5 ether);
+        emit WithdrawERC20(_to, 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238, 0.5 ether);
+    }
 }
