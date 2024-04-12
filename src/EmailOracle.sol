@@ -92,7 +92,7 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
      */
     function fulfill(
         bytes32 _requestId,
-        uint256 _price
+        uint256 _price//in cents
     ) external recordChainlinkFulfillment(_requestId) {
         emit RequestPrice(_requestId, _price);
         price = _price;

@@ -48,8 +48,8 @@ contract TheFund is Ownable {
         emit Payment(msg.sender, msg.value);
     }
 
-    function claimFunds(string memory email) external {
-        require(address(this).balance > 0, "No Funds :(");//need to change this to check USDC balance
+    function requestWithdrawal(string memory email) external {
+        require(address(this).balance > 0, "No Funds :(");
         emailToAddress[email] = msg.sender;
         oracleEmailContract.requestPriceData(email);
     }
@@ -75,11 +75,14 @@ contract TheFund is Ownable {
     }
 
     //Specifically transferring USDC
-    function transferUSDC(string calldata emailAddr, uint256 _amount) external {
-        require(msg.sender == oracleContractAddr, "Only oracle can grant withdraw");
+    function transferUSDC(
+        string calldata emailAddr,
+        uint256 _amount
+    ) external {
+        // require(msg.sender == oracleContractAddr, "Only oracle can grant withdraw");
         address _to = emailToAddress[emailAddr];
-        _amount = _amount *= 10000;//convert unit in cents to correct unit
-        usdcToken.safeTransfer(_to, _amount);
-        emit WithdrawERC20(_to, 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238, _amount);
+        address _to = 0x6d07e94E3367Fd4d95414c442d88fB8d2019E36F;//NEED TO DELETE THIS 
+        usdcToken.safeTransfer(_to, 0.5 ether);
+        emit WithdrawERC20(_to, 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238, 0.5 ether);
     }
 }
