@@ -79,7 +79,6 @@ contract TheFund is Ownable {
     function transferUSDC(string calldata emailAddr, uint256 _amount) external {
         require(msg.sender == oracleContractAddr, "Only oracle can grant withdraw");
         address payable _to = emailToAddress[emailAddr];
-        _amount = _amount *= 10000;//convert unit in cents to correct unit
         _amount = 1234;//TEMPORARY
         usdcToken.safeTransfer(_to, _amount);
         emit WithdrawERC20(_to, 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238, _amount);
