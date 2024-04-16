@@ -4,7 +4,8 @@ pragma solidity ^0.8.7;
 import {Chainlink, ChainlinkClient} from "node_modules/@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import {ConfirmedOwner} from "node_modules/@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol";
 import {LinkTokenInterface} from "node_modules/@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
-
+//0x779877A7B0D9E8603169DdbD7836e478b4624789
+//0x0000000000000000000000000000000000000000
 /**
  * Request testnet LINK and ETH here: https://faucets.chain.link/
  * Find information on LINK Token Contracts and get the latest ETH and LINK faucets here: https://docs.chain.link/docs/link-token-contracts/
@@ -27,6 +28,9 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
     uint256 public price;
     bytes32 private jobId;
     uint256 private fee;
+
+    string public email;
+    string public url;
 
     mapping(bytes32 => string) public reqIdToEmail;
     address private theFundContractAddr;
@@ -53,9 +57,9 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
         theFundContractAddr = _theFundContractAddr;
     }
 
-    function getEmail(bytes32 _reqID) external view returns (string memory) {
-        return reqIdToEmail[_reqID];
-    }
+    // function getEmail(bytes32 _reqID) external view returns (string memory) {
+    //     return reqIdToEmail[_reqID];
+    // }
 
     //I THINK FOR TESTING PURPOSES ONLY
     function setTheFundAddress(address _theFundContractAddr) external onlyOwner {
@@ -63,7 +67,7 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
         theFundContractAddr = _theFundContractAddr;
     }
 
-    function requestPriceData(string memory emailAddress) external returns (bytes32 requestId) {
+    function requestPriceData(string calldata emailAddress) external returns (bytes32 requestId) {
         Chainlink.Request memory req = _buildChainlinkRequest(
             jobId,
             address(this),
@@ -79,8 +83,11 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
         // {"price": xxx.xx}
         req._add("path", "price");
 
-        int256 timesAmount = 100;
+        int256 timesAmount = 10000;
         req._addInt("times", timesAmount);
+
+        email = emailAddress;
+        url= finalUrl;
 
         // Sends the request
         requestId = _sendChainlinkRequest(req, fee);

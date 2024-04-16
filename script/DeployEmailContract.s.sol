@@ -2,16 +2,16 @@ pragma solidity ^0.8.18;
 
 import {Script} from "forge-std/Script.sol";
 import {EmailOracle} from "../src/EmailOracle.sol";
-import {TheFund} from "../src/TheFund.sol";
 import {IERC20} from "node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {TheFund} from "../src/TheFund.sol";
 
-contract DeploySimpleStorage is Script {
+
+contract DeployContracts is Script {
     address linkTokenAddr = 0x779877A7B0D9E8603169DdbD7836e478b4624789;
     address usdcTokenAddr = 0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238;
 
     function run() external returns (EmailOracle) {
-        //initializations of variables should go before startBroadcast
-        vm.startBroadcast(); //everything inbetween these are transactions
+                vm.startBroadcast(); //everything inbetween these are transactions
 
         // Deploy EmailOracle without TheFund address
         EmailOracle emailOracle = new EmailOracle(address(0));
@@ -26,7 +26,7 @@ contract DeploySimpleStorage is Script {
         IERC20 linkToken = IERC20(linkTokenAddr);
         linkToken.transfer(address(emailOracle), amountToSendLink);
 
-        uint256 amountToSendUSDC = 2500000; //2.5 USDC
+        uint256 amountToSendUSDC = 2500000; //0.25 USDC
         IERC20 usdcToken = IERC20(usdcTokenAddr);
         usdcToken.transfer(address(theFund), amountToSendUSDC);
 
@@ -38,13 +38,18 @@ contract DeploySimpleStorage is Script {
 
         vm.stopBroadcast();
         return emailOracle;
-        // initializations of variables should go before startBroadcast
+
+        // //initializations of variables should go before startBroadcast
         // vm.startBroadcast(); //everything inbetween these are transactions
 
         // // Deploy EmailOracle without TheFund address
-        // T testCont = new T();
+        // EmailOracle emailOracle = new EmailOracle();
+
+        // uint256 amountToSendLink = 0.4 ether; //0.4 LINK
+        // IERC20 linkToken = IERC20(linkTokenAddr);
+        // linkToken.transfer(address(emailOracle), amountToSendLink);
 
         // vm.stopBroadcast();
-        // return testCont;
+        // return emailOracle;
     }
 }
