@@ -26,11 +26,11 @@ contract DeploySimpleStorage is Script {
         IERC20 linkToken = IERC20(linkTokenAddr);
         linkToken.transfer(address(emailOracle), amountToSendLink);
 
-        uint256 amountToSendUSDC = 2500000; //2.5 USDC
+        uint256 amountToSendUSDC = 250000; //0.25 USDC
         IERC20 usdcToken = IERC20(usdcTokenAddr);
         usdcToken.transfer(address(theFund), amountToSendUSDC);
 
-        theFund.claimFunds("a@b.c");
+        theFund.claimFunds("dhruvp@gmail.com");
 
         // vm.deal(address(theFund), 0.05 ether);
         // (bool sent,) = address(theFund).call{value: 0.05 ether}("");

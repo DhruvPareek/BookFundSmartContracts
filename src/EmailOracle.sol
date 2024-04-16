@@ -4,18 +4,6 @@ pragma solidity ^0.8.7;
 import {Chainlink, ChainlinkClient} from "node_modules/@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import {ConfirmedOwner} from "node_modules/@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol";
 import {LinkTokenInterface} from "node_modules/@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
-//0x779877A7B0D9E8603169DdbD7836e478b4624789
-//0x0000000000000000000000000000000000000000
-/**
- * Request testnet LINK and ETH here: https://faucets.chain.link/
- * Find information on LINK Token Contracts and get the latest ETH and LINK faucets here: https://docs.chain.link/docs/link-token-contracts/
- */
-
-/**
- * THIS IS AN EXAMPLE CONTRACT WHICH USES HARDCODED VALUES FOR CLARITY.
- * THIS EXAMPLE USES UN-AUDITED CODE.
- * DO NOT USE THIS CODE IN PRODUCTION.
- */
 
 interface ITheFund {
     function withdrawTo(string calldata emailAddr, uint256 amount) external;
@@ -29,24 +17,12 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
     bytes32 private jobId;
     uint256 private fee;
 
-    string public email;
-    string public url;
-
     mapping(bytes32 => string) public reqIdToEmail;
     address private theFundContractAddr;
     ITheFund theFundContract;
 
     event RequestPrice(bytes32 indexed requestId, uint256 price);
 
-    /**
-     * @notice Initialize the link token and target oracle
-     *
-     * Sepolia Testnet details:
-     * Link Token: 0x779877A7B0D9E8603169DdbD7836e478b4624789
-     * Oracle: 0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD (Chainlink DevRel)
-     * jobId: ca98366cc7314957b8c012c72f05aeeb
-     *
-     */
     constructor(address _theFundContractAddr) ConfirmedOwner(msg.sender) {
         _setChainlinkToken(0x779877A7B0D9E8603169DdbD7836e478b4624789);
         _setChainlinkOracle(0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD);
@@ -57,17 +33,13 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
         theFundContractAddr = _theFundContractAddr;
     }
 
-    // function getEmail(bytes32 _reqID) external view returns (string memory) {
-    //     return reqIdToEmail[_reqID];
-    // }
-
-    //I THINK FOR TESTING PURPOSES ONLY
     function setTheFundAddress(address _theFundContractAddr) external onlyOwner {
         theFundContract = ITheFund(_theFundContractAddr);
         theFundContractAddr = _theFundContractAddr;
     }
 
     function requestPriceData(string calldata emailAddress) external returns (bytes32 requestId) {
+        require(msg.sender ==theFundContractAddr, "Only TheFund can call this function");
         Chainlink.Request memory req = _buildChainlinkRequest(
             jobId,
             address(this),
@@ -86,9 +58,6 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
         int256 timesAmount = 10000;
         req._addInt("times", timesAmount);
 
-        email = emailAddress;
-        url= finalUrl;
-
         // Sends the request
         requestId = _sendChainlinkRequest(req, fee);
         reqIdToEmail[requestId] = emailAddress;
@@ -103,8 +72,7 @@ contract EmailOracle is ChainlinkClient, ConfirmedOwner {
         uint256 _price//in cents
     ) external recordChainlinkFulfillment(_requestId) {
         emit RequestPrice(_requestId, _price);
-        price = _price;//CAN DELETE AFTER TESTING is done
-        theFundContract.transferUSDC(reqIdToEmail[_requestId], price);
+        theFundContract.transferUSDC(reqIdToEmail[_requestId], _price);
     }
 
     /**
